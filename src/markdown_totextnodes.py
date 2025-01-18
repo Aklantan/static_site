@@ -57,11 +57,17 @@ def split_nodes_link(old_nodes):
         else: 
             new_nodes.append(TextNode(split_text[0],TextType.TEXT))
         new_nodes.append(TextNode(links[0][0],TextType.LINK,links[0][1]))
+        print("New nodes so far:", new_nodes)
         if split_text[1] != "":
+            links = extract_markdown_links(split_text[1])
             # Create a new TextNode with the remaining text
             remaining_node = TextNode(split_text[1], TextType.TEXT)
-            # Process it for more images
-            new_nodes.extend(split_nodes_link([remaining_node]))        
+            if len(links) == 0:
+                new_nodes.append(remaining_node)
+        
+                # Process it for more images
+            else:
+                new_nodes.extend(split_nodes_link([remaining_node]))        
         
             
 
@@ -110,3 +116,8 @@ def validate_no_nested_parentheses(text):
 
 
    
+node = TextNode(
+    "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+    TextType.TEXT,
+)
+new_nodes = split_nodes_link([node])

@@ -15,9 +15,7 @@ class TestMarkdowntoTextNode(unittest.TestCase):
     TextNode("This is text with a link ", TextType.TEXT),
     TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
     TextNode(" and ", TextType.TEXT),
-    TextNode(
-        "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
-    ),
+    TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"),
 ])
 
 
