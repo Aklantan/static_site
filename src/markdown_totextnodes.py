@@ -25,11 +25,31 @@ def split_nodes_delimiter(old_nodes, delimiter,text_type):
 
 def split_nodes_image(old_nodes):
     new_nodes = []     
-        
+   
     for node in old_nodes:
-        image_tags = extract_markdown_images(node.text)
-        for i in range(len(image_tags)):
-            return new_nodes
+        images = extract_markdown_images(node.text)
+        if len(images) == 0:
+            new_nodes.append(node)
+            continue
+        split_text = node.text.split(f"![{images[0][0]}]({images[0][1]})")
+        if split_text[0] == "":
+            pass
+        else: 
+            new_nodes.append(TextNode(split_text[0],TextType.TEXT))
+        new_nodes.append(TextNode(images[0][0],TextType.IMAGE,images[0][1]))
+        if split_text[1] != "":
+            # Create a new TextNode with the remaining text
+            remaining_node = TextNode(split_text[1], TextType.TEXT)
+            # Process it for more images
+            new_nodes.extend(split_nodes_image([remaining_node]))
+
+            
+        
+            
+
+
+
+
 
 def extract_markdown_images(text):
     validate_no_nested_brackets(text)
