@@ -43,7 +43,25 @@ def split_nodes_image(old_nodes):
             # Process it for more images
             new_nodes.extend(split_nodes_image([remaining_node]))
 
-            
+def split_nodes_link(old_nodes):
+    new_nodes = []     
+   
+    for node in old_nodes:
+        links = extract_markdown_links(node.text)
+        if len(links) == 0:
+            new_nodes.append(node)
+            continue
+        split_text = node.text.split(f"[{links[0][0]}]({links[0][1]})")
+        if split_text[0] == "":
+            pass
+        else: 
+            new_nodes.append(TextNode(split_text[0],TextType.TEXT))
+        new_nodes.append(TextNode(links[0][0],TextType.LINK,links[0][1]))
+        if split_text[1] != "":
+            # Create a new TextNode with the remaining text
+            remaining_node = TextNode(split_text[1], TextType.TEXT)
+            # Process it for more images
+            new_nodes.extend(split_nodes_link([remaining_node]))        
         
             
 
@@ -89,11 +107,6 @@ def validate_no_nested_parentheses(text):
     if paren_depth != 0:
         raise ValueError("Unmatched parentheses detected.")  # For dangling parentheses
 
-text_with_links = "Here is [a link](https://example.com) and here is [an image](https://example.com/image.png)."
-print(extract_markdown_links(text_with_links))
-
-text_with_images = "Check this out ![Alt text](https://example.com/image.png) and ![Another](https://example.com/another.png)."
-print(extract_markdown_images(text_with_images))
 
 
    
