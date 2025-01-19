@@ -3,6 +3,7 @@ import unittest
 from textnode import TextNode, TextType,text_node_to_html_node
 
 
+
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
         node = TextNode("This is a text node", TextType.BOLD)
@@ -52,6 +53,8 @@ class TestTextNode(unittest.TestCase):
     def test_text_node_to_html_image(self):
         node = TextNode("This is a text node", TextType.IMAGE, url="www.piccies.com")
         self.assertEqual(text_node_to_html_node(node).to_html(),"<img src=\"www.piccies.com\" alt=\"This is a text node\">")
+
+
 
 if __name__ == "__main__":
     unittest.main()
