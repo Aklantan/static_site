@@ -133,26 +133,15 @@ def text_to_textnodes(text):
 
 
 def markdown_to_blocks(markdown):
-    new_blocks= []
-    lines = markdown.split("\n")
-    #print(lines)
-    temp_string = []
-    for line in lines:
+    blocks = markdown.split('\n\n')
+    result = []
+    for block in blocks:
+        cleaned_block = block.strip()
+        if cleaned_block:
+            result.append(cleaned_block)
+    print(result)
         
-        line = line.strip()
-        if line == "":
-            if len(temp_string) == 0:
-                continue
-            else:
-                new_blocks.append("\n".join(temp_string))
-                temp_string = []
-        else:
-            temp_string.append(line)
-
-    if len(temp_string) == 0:
-        return new_blocks
-    else:
-        new_blocks.append("\n".join(temp_string))
+    return result
 
 
 
@@ -192,21 +181,43 @@ def markdown_to_blocks(markdown):
 
             
 
-    print(new_blocks)
+    
         
-        
 
         
-markdown_to_blocks("""# This is a heading
+def test_markdown_to_blocks():
+        # Test 1: Basic blocks with single separator
+        assert markdown_to_blocks("Block 1\n\nBlock 2") == ["Block 1", "Block 2"]
 
-This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+        # Test 2: Multiple blank lines between blocks
+        assert markdown_to_blocks("Block 1\n\n\n\nBlock 2") == ["Block 1", "Block 2"]
 
-* This is the first list item in a list block
-* This is a list item
-* This is another list item""")
+        # Test 3: List items (should stay together)
+        assert markdown_to_blocks("# Heading\n\n* Item 1\n* Item 2") == ["# Heading", "* Item 1\n* Item 2"]
 
-markdown_to_blocks("Block 1\n\nBlock 2\n\n")
+        # Test 4: Whitespace handling
+        assert markdown_to_blocks("  Block 1  \n\n  Block 2  ") == ["Block 1", "Block 2"]
 
+        # Test 5: Complex markdown (like from the example)
+        test_md = """# This is a heading
 
+    This is a paragraph of text. It has some **bold** and *italic* words inside of it.
 
-markdown_to_blocks("# Heading\n\n* List item 1\n* List item 2")
+    * This is the first list item in a list block
+    * This is a list item
+    * This is another list item"""
+        
+        expected = [
+            "# This is a heading",
+            "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
+            "* This is the first list item in a list block\n* This is a list item\n* This is another list item"
+        ]
+        result = markdown_to_blocks(test_md)
+        print("\nExpected:", expected)
+        print("Got:", result)
+        print("\nExpected[0]:", repr(expected[0]))
+        print("Got[0]:", repr(result[0]))
+        
+        #self.assertEqual(result, expected)
+
+test_markdown_to_blocks()

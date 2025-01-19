@@ -49,6 +49,40 @@ class TestTexttoTextNode(unittest.TestCase):
         # Test 4: Empty string
         text4 = ""
         nodes4 = text_to_textnodes(text4)
+class TestMarkdownToBlocks(unittest.TestCase):
+    def test_markdown_to_blocks(self):
+        # Test 1: Basic blocks with single separator
+        assert markdown_to_blocks("Block 1\n\nBlock 2") == ["Block 1", "Block 2"]
+
+        # Test 2: Multiple blank lines between blocks
+        assert markdown_to_blocks("Block 1\n\n\n\nBlock 2") == ["Block 1", "Block 2"]
+
+        # Test 3: List items (should stay together)
+        assert markdown_to_blocks("# Heading\n\n* Item 1\n* Item 2") == ["# Heading", "* Item 1\n* Item 2"]
+
+        # Test 4: Whitespace handling
+        assert markdown_to_blocks("  Block 1  \n\n  Block 2  ") == ["Block 1", "Block 2"]
+
+        # Test 5: Complex markdown (like from the example)
+        test_md = """# This is a heading
+
+    This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+    * This is the first list item in a list block
+    * This is a list item
+    * This is another list item"""
+        
+        expected = [
+            "# This is a heading",
+            "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
+            "* This is the first list item in a list block\n* This is a list item\n* This is another list item"
+        ]
+        result = markdown_to_blocks(test_md)
+        print("Expected:", expected)
+        print("Got:", result)
+        assert result == expected
+
+        print("All tests passed!")
 
 if __name__ == "__main__":
     unittest.main()
