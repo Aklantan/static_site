@@ -136,88 +136,31 @@ def markdown_to_blocks(markdown):
     blocks = markdown.split('\n\n')
     result = []
     for block in blocks:
-        cleaned_block = block.strip()
+        lines_unprepped = block.split("\n")
+        lines_prepped = []
+        for line in lines_unprepped:
+            lines_prepped.append(line.strip())
+        cleaned_block = "\n".join(lines_prepped)
+             
         if cleaned_block:
             result.append(cleaned_block)
-    print(result)
         
     return result
 
 
+def block_to_block_type(block):
+    if re.search("^#{1,6}\s.+$",block):
+        block_type = "heading"
+    elif re.search("```.*```",block):
+        block_type = "code"
+    elif re.search("^>",block):
+        block_type = "quote"
+    elif re.search("^-/*\s",block):
+        block_type = "unordered_list"
+    elif re.search ("^[0-9]\.\s",block):
+        block_type = "ordered_list"
+    else:
+        block_type = "paragraph"
 
-
-    ############### The below was a previous more complicated iteration
-    # list_str =""
-    # block_str = ""
-    # in_list_block = False
-    # in_text_block = False
-    # for line in lines:
-    #     if line[:1] == "#":
-    #         if in_list_block == True:
-    #             new_blocks.append(list_str)
-    #             in_list_block = False
-    #         if in_text_block == True:
-    #             new_blocks.append(block_str)
-    #             in_text_block = False
-    #         new_blocks.append(line)
-    #     if line[:1] == "*":
-    #         if in_text_block == True:
-    #             new_blocks.append(block_str)
-    #             in_text_block = False
-    #         list_str += f"{line}\n"
-    #         in_list_block = True
-    #     else:
-    #         if in_list_block == True:
-    #             new_blocks.append(list_str)
-    #             in_list_block = False
-    #         block_str += f"{line}\n"
-    #         in_text_block = True
-
-    # if in_list_block:
-    #         new_blocks.append(list_str)
-    #         in_list_block = False
-    # if in_text_block:
-    #     new_blocks.append(block_str)
-
-            
-
-    
+    return block_type
         
-
-        
-def test_markdown_to_blocks():
-        # Test 1: Basic blocks with single separator
-        assert markdown_to_blocks("Block 1\n\nBlock 2") == ["Block 1", "Block 2"]
-
-        # Test 2: Multiple blank lines between blocks
-        assert markdown_to_blocks("Block 1\n\n\n\nBlock 2") == ["Block 1", "Block 2"]
-
-        # Test 3: List items (should stay together)
-        assert markdown_to_blocks("# Heading\n\n* Item 1\n* Item 2") == ["# Heading", "* Item 1\n* Item 2"]
-
-        # Test 4: Whitespace handling
-        assert markdown_to_blocks("  Block 1  \n\n  Block 2  ") == ["Block 1", "Block 2"]
-
-        # Test 5: Complex markdown (like from the example)
-        test_md = """# This is a heading
-
-    This is a paragraph of text. It has some **bold** and *italic* words inside of it.
-
-    * This is the first list item in a list block
-    * This is a list item
-    * This is another list item"""
-        
-        expected = [
-            "# This is a heading",
-            "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
-            "* This is the first list item in a list block\n* This is a list item\n* This is another list item"
-        ]
-        result = markdown_to_blocks(test_md)
-        print("\nExpected:", expected)
-        print("Got:", result)
-        print("\nExpected[0]:", repr(expected[0]))
-        print("Got[0]:", repr(result[0]))
-        
-        #self.assertEqual(result, expected)
-
-test_markdown_to_blocks()

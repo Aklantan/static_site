@@ -78,11 +78,12 @@ class TestMarkdownToBlocks(unittest.TestCase):
             "* This is the first list item in a list block\n* This is a list item\n* This is another list item"
         ]
         result = markdown_to_blocks(test_md)
-        print("Expected:", expected)
+        print("\nExpected:", expected)
         print("Got:", result)
-        assert result == expected
-
-        print("All tests passed!")
+        print("\nExpected[0]:", repr(expected[0]))
+        print("Got[0]:", repr(result[0]))
+        
+        self.assertEqual(result, expected)
 
 if __name__ == "__main__":
     unittest.main()
