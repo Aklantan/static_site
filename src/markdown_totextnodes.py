@@ -151,14 +151,33 @@ def markdown_to_blocks(markdown):
 def block_to_block_type(block):
     if re.search("^#{1,6}\s.+$",block):
         block_type = "heading"
-    elif re.search("```.*```",block):
-        block_type = "code"
+
+    elif block.startswith("```"):  # Check if the block starts as a code block
+        block_split = block.splitlines()
+        if len(block_split) < 2 or not block_split[-1] != "```":  # Check for closing backticks
+            block_type = "paragraph"
+        else:
+            block_type = "code"
+
+
     elif re.search("^>",block):
         block_type = "quote"
-    elif re.search("^-/*\s",block):
+
+    elif re.search("(?m)^[-*]\s", block):
         block_type = "unordered_list"
-    elif re.search ("^[0-9]\.\s",block):
+        for line in block.splitlines():
+            if not re.match("^[-*]\s", line):
+                block_type = "paragraph"
+                break
+        
+    elif block.startswith("1. "):
+        lines = block.splitlines()
         block_type = "ordered_list"
+        for i in range(len(lines)):
+            if not lines[i].startswith(f"{i+1}. "):
+                block_type = "paragraph"
+                break
+            
     else:
         block_type = "paragraph"
 
