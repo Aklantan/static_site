@@ -78,12 +78,84 @@ class TestMarkdownToBlocks(unittest.TestCase):
             "* This is the first list item in a list block\n* This is a list item\n* This is another list item"
         ]
         result = markdown_to_blocks(test_md)
-        print("\nExpected:", expected)
-        print("Got:", result)
-        print("\nExpected[0]:", repr(expected[0]))
-        print("Got[0]:", repr(result[0]))
+        # print("\nExpected:", expected)
+        # print("Got:", result)
+        # print("\nExpected[0]:", repr(expected[0]))
+        # print("Got[0]:", repr(result[0]))
         
         self.assertEqual(result, expected)
+
+class TestBlockToBlocks(unittest.TestCase):
+    def test_block_to_blocks_paragraphs(self):
+        # Test for a paragraph
+        block = "This is a paragraph"
+        assert block_to_block_type(block) == "paragraph"
+        #Test for a multi-line paragraph
+        block = """This is a paragraph
+        Here is some more text
+        More paragraph"""
+        assert block_to_block_type(block) == "paragraph"
+        #Test for empty string
+        block = ""
+        assert block_to_block_type(block) == "paragraph"
+
+    def test_block_to_blocks_headings(self):
+        #Tests for each number of # possible for a heading
+        block = "# This is a heading"
+        assert block_to_block_type(block) == "heading"
+        block = "## This is a heading"
+        assert block_to_block_type(block) == "heading"
+        block = "### This is a heading"
+        assert block_to_block_type(block) == "heading"
+        block = "#### This is a heading"
+        assert block_to_block_type(block) == "heading"
+        block = "##### This is a heading"
+        assert block_to_block_type(block) == "heading"
+        block = "###### This is a heading"
+        assert block_to_block_type(block) == "heading"
+        block = "####### This is a heading"
+        assert block_to_block_type(block) == "paragraph"
+
+    def test_block_to_blocks_code(self):
+        block = """``` ls -lh```"""
+        assert block_to_block_type(block) == "paragraph"
+        block = """``` ls -lh
+        ```"""
+        assert block_to_block_type(block) == "code"
+        block = """```
+        ```"""
+        assert block_to_block_type(block) == "code"
+
+    def test_block_to_blocks_quote(self):
+        block = ">Goddamn I love these peaches"
+        assert block_to_block_type(block) == "quote"
+        block = """>Goddamn I love these peaches
+        Oh yea"""
+        assert block_to_block_type(block) == "quote"
+
+    def test_block_to_blocks_unordered_list(self):
+        block = """* Item 1
+- Item 2
+* Item 3"""
+        assert block_to_block_type(block) == "unordered_list"
+
+        block = """* Item 1
+- Item 2
+ Item 3"""
+        assert block_to_block_type(block) == "paragraph"  
+
+    def test_block_to_blocks_unordered_list(self):
+        block = """1. Item 1
+2. Item 2
+3. Item 3"""
+        assert block_to_block_type(block) == "ordered_list"
+
+        block = """1. Item 1
+2. Item 2
+4. Item 3"""
+        assert block_to_block_type(block) == "paragraph"  
+
+
 
 if __name__ == "__main__":
     unittest.main()
