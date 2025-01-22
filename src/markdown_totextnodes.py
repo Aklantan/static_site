@@ -183,3 +183,32 @@ def block_to_block_type(block):
 
     return block_type
         
+
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    html_nodes = []
+    for block in blocks:
+        match block_to_block_type(block):
+            case "heading":
+                heading_type = get_heading_type(block)
+                heading_node = block.strip("#").strip()
+
+            case "code":
+                pass
+            case "quote":
+                pass
+            case "unordered_list":
+                pass
+            case "ordered_list":
+                pass
+            case "paragraph":
+                pass
+
+
+def get_heading_type(text):
+    heading_type = f"h{len(re.match("#*", text).group())}"
+    return heading_type
+  
+
+
