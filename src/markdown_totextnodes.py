@@ -192,7 +192,8 @@ def markdown_to_html_node(markdown):
         match block_to_block_type(block):
             case "heading":
                 heading_type = get_heading_type(block)
-                heading_node = block.strip("#").strip()
+                heading_text = block.split(" ",1)[1]
+                html_nodes.append(HTMLNode(heading_type))
 
             case "code":
                 pass
