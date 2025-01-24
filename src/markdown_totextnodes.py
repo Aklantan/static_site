@@ -149,7 +149,7 @@ def markdown_to_blocks(markdown):
 
 
 def block_to_block_type(block):
-    if re.search("^#{1,6}\s.+$",block):
+    if re.search(r"^#{1,6}\s.+$",block):
         block_type = "heading"
 
     elif block.startswith("```"):  # Check if the block starts as a code block
@@ -163,20 +163,28 @@ def block_to_block_type(block):
     elif re.search("^>",block):
         block_type = "quote"
 
-    elif re.search("(?m)^[-*]\s", block):
+    elif re.search(r"(?m)^[-*]\s", block):
         block_type = "unordered_list"
         for line in block.splitlines():
-            if not re.match("^[-*]\s", line):
+        # Skip completely empty lines within the block
+            if line.strip() == "":
+                continue
+            if not re.match(r"^[-*]\s", line):
                 block_type = "paragraph"
                 break
+
         
     elif block.startswith("1. "):
         lines = block.splitlines()
         block_type = "ordered_list"
         for i in range(len(lines)):
+        # Skip completely empty lines within the block
+            if lines[i].strip() == "":
+                continue
             if not lines[i].startswith(f"{i+1}. "):
                 block_type = "paragraph"
                 break
+
             
     else:
         block_type = "paragraph"
@@ -193,18 +201,40 @@ def markdown_to_html_node(markdown):
             case "heading":
                 heading_type = get_heading_type(block)
                 heading_text = block.split(" ",1)[1]
-                html_nodes.append(HTMLNode(heading_type))
+                heading_nodes = text_to_textnodes(heading_text)
+                html_nodes.append(ParentNode(heading_type,children=heading_nodes))
+                
 
             case "code":
-                pass
+                code_node = LeafNode("code",block)
+                html_nodes.append(ParentNode("pre",children=[code_node]))
+
             case "quote":
-                pass
+                html_nodes.append(LeafNode("blockquote",block))
+
             case "unordered_list":
-                pass
+                list_nodes = []
+                item_lists = block.split("\n")
+                for item in item_lists:
+                    item_text = item.lstrip("-* ").strip()
+                    item_nodes = text_to_textnodes(item_text)
+                    list_nodes.append(ParentNode("li", children=item_nodes))
+                html_nodes.append(ParentNode("ul",list_nodes))
+
             case "ordered_list":
-                pass
+                list_nodes = []
+                item_lists = block.split("\n")
+                for item in item_lists:
+                    item_text = item.lstrip("0123456789. ").strip()
+                    item_nodes = text_to_textnodes(item)
+                    list_nodes.append(ParentNode("li", children=item_nodes))
+                html_nodes.append(ParentNode("ol",list_nodes))
+
             case "paragraph":
-                pass
+                paragraph_nodes = text_to_textnodes(block)
+                html_nodes.append(ParentNode("p",children=paragraph_nodes))
+    
+    return ParentNode("div",children=html_nodes)
 
 
 def get_heading_type(text):
@@ -212,4 +242,32 @@ def get_heading_type(text):
     return heading_type
   
 
+def create_list_blocks(block,block_type):
+    list_nodes = []
+    for line in block.splitlines():
+        if line.strip():  # Only process non-blank lines
+        # Remove list markers (e.g., "-", "*", or "1. ") and any extra spaces
+            item_text = line.lstrip("-*0123456789. ").strip()
+        
+        # Convert the text into inline child nodes (e.g., for bold or italic)
+            item_child_nodes = text_to_children(item_text)
+        
+        # Create a <li> node with the inline child nodes
+            list_node = HTMLNode("li", children=item_child_nodes)
+            list_nodes.append(list_node)
 
+# Determine the parent list type and wrap the items
+    if block_type == "unordered_list":
+        list_parent = HTMLNode("ul", children=list_nodes)
+    elif block_type == "ordered_list":
+       list_parent = HTMLNode("ol", children=list_nodes)
+
+# Return the outer parent list node
+    return list_parent
+
+
+
+md_thing = markdown_to_html_node("""# My Heading
+
+This is a paragraph.""")
+print(md_thing)
