@@ -266,8 +266,3 @@ def create_list_blocks(block,block_type):
     return list_parent
 
 
-
-md_thing = markdown_to_html_node("""# My Heading
-
-This is a paragraph.""")
-print(md_thing)
