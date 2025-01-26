@@ -256,7 +256,7 @@ def create_list_blocks(block,block_type):
             list_node = HTMLNode("li", children=item_child_nodes)
             list_nodes.append(list_node)
 
-# Determine the parent list type and wrap the items
+# Determine the parent list type and wrap the item
     if block_type == "unordered_list":
         list_parent = HTMLNode("ul", children=list_nodes)
     elif block_type == "ordered_list":
