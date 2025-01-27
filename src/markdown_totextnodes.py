@@ -252,11 +252,11 @@ def create_list_blocks(block,block_type):
         # Convert the text into inline child nodes (e.g., for bold or italic)
             item_child_nodes = text_to_children(item_text)
         
-        # Create a <li> node with the inline child nodes
+        # Create a <li> node with the inline child node
             list_node = HTMLNode("li", children=item_child_nodes)
             list_nodes.append(list_node)
 
-# Determine the parent list type and wrap the item
+# Determine the parent list type and wrap the items
     if block_type == "unordered_list":
         list_parent = HTMLNode("ul", children=list_nodes)
     elif block_type == "ordered_list":
