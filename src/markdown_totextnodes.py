@@ -191,7 +191,7 @@ def block_to_block_type(block):
 
     return block_type
         
-
+############################## CURRENTLY WIP below this line. ##############################################
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
@@ -240,7 +240,18 @@ def markdown_to_html_node(markdown):
 def get_heading_type(text):
     heading_type = f"h{len(re.match("#*", text).group())}"
     return heading_type
-  
+
+def text_to_children(text):
+    delimit_list =[("**",TextType.BOLD),("*",TextType.ITALIC),("`",TextType.CODE),]
+    new_nodes = [TextNode(text,TextType.TEXT)]
+    for delim, txttype in delimit_list:
+        new_nodes = split_nodes_delimiter(new_nodes,delim,txttype)
+
+    
+    new_nodes = split_nodes_image(new_nodes)
+    new_nodes = split_nodes_link(new_nodes)
+
+    return new_nodes
 
 def create_list_blocks(block,block_type):
     list_nodes = []
