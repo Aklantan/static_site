@@ -156,6 +156,19 @@ class TestBlockToBlocks(unittest.TestCase):
         assert block_to_block_type(block) == "paragraph"  
 
 
+class TestMarkdowntoHTMLNode(unittest.TestCase):
+    def test_quote_block(self):
+        markdown = "> This is a quote\n> spanning multiple lines\n> with some **bold** text\n> and a > character inside"
+        node = markdown_to_html_node(markdown)
+        # The result should be a div containing a blockquote
+        # The blockquote should contain the text without > markers
+        # The **bold** text should be properly converted to <strong>
+        print("Generated:", node.to_html())
+        print("Expected:", "<div><blockquote>This is a quote\nspanning multiple lines\nwith some <strong>bold</strong> text\nand a > character inside</blockquote></div>")
+        expected_html = "<div><blockquote>This is a quote\nspanning multiple lines\nwith some <strong>bold</strong> text\nand a > character inside</blockquote></div>"
+        assert node.to_html() == expected_html
+
+
 
 if __name__ == "__main__":
     unittest.main()

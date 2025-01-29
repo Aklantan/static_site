@@ -36,7 +36,7 @@ class TestTextNode(unittest.TestCase):
 
     def test_text_node_to_html_bold(self):
         node = TextNode("This is a text node", TextType.BOLD)
-        self.assertEqual(text_node_to_html_node(node).to_html(),"<b>This is a text node</b>")
+        self.assertEqual(text_node_to_html_node(node).to_html(),"<strong>This is a text node</strong>")
 
     def test_text_node_to_html_italic(self):
         node = TextNode("This is a text node", TextType.ITALIC)

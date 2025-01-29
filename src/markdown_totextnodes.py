@@ -136,16 +136,52 @@ def markdown_to_blocks(markdown):
     blocks = markdown.split('\n\n')
     result = []
     for block in blocks:
-        lines_unprepped = block.split("\n")
-        lines_prepped = []
-        for line in lines_unprepped:
-            lines_prepped.append(line.strip())
-        cleaned_block = "\n".join(lines_prepped)
-             
+        # Check if any line in the block starts with * or - after stripping
+        if block.strip().startswith(("*", "-")):
+            # Handle list block
+            lines = block.split('\n')
+            cleaned_lines = [line.strip() for line in lines]
+            cleaned_block = '\n'.join(cleaned_lines)
+        elif "```" in block:
+            lines = block.splitlines()
+            start_index = None
+            end_index = None
+            # Find start and end indices of code block
+            for i, line in enumerate(lines):
+                if line.startswith("```"):
+                    if start_index is None:
+                        start_index = i
+                    else:
+                        end_index = i
+                        break
+            
+            if start_index is not None and end_index is not None:
+                # Add text before code block if it exists
+                if start_index > 0:
+                    before_code = '\n'.join(lines[:start_index]).strip()
+                    if before_code:
+                        result.append(before_code)
+                
+                # Add code block
+                code_block = '\n'.join(lines[start_index:end_index + 1])
+                result.append(code_block)
+                
+                # Add text after code block if it exists
+                if end_index < len(lines) - 1:
+                    after_code = '\n'.join(lines[end_index + 1:]).strip()
+                    if after_code:
+                        result.append(after_code)
+            continue
+                    
+        else:
+            # Handle non-list block
+            cleaned_block = block.strip()
+            
         if cleaned_block:
             result.append(cleaned_block)
-        
+    
     return result
+
 
 
 def block_to_block_type(block):
@@ -154,7 +190,7 @@ def block_to_block_type(block):
 
     elif block.startswith("```"):  # Check if the block starts as a code block
         block_split = block.splitlines()
-        if len(block_split) < 2 or not block_split[-1] != "```":  # Check for closing backticks
+        if len(block_split) < 2 or not block_split[-1].endswith("```"):  # Check for closing backticks
             block_type = "paragraph"
         else:
             block_type = "code"
@@ -201,37 +237,27 @@ def markdown_to_html_node(markdown):
             case "heading":
                 heading_type = get_heading_type(block)
                 heading_text = block.split(" ",1)[1]
-                heading_nodes = text_to_textnodes(heading_text)
+                heading_nodes = text_to_children(heading_text)
                 html_nodes.append(ParentNode(heading_type,children=heading_nodes))
                 
 
             case "code":
-                code_node = LeafNode("code",block)
+                cleaned_block = clean_code_block(block)
+                code_node = LeafNode("code",cleaned_block)
                 html_nodes.append(ParentNode("pre",children=[code_node]))
 
             case "quote":
-                html_nodes.append(LeafNode("blockquote",block))
+                cleaned_quote = clean_quote_block(block)
+                html_nodes.append(ParentNode("blockquote",text_to_children(cleaned_quote)))
 
-            case "unordered_list":
-                list_nodes = []
-                item_lists = block.split("\n")
-                for item in item_lists:
-                    item_text = item.lstrip("-* ").strip()
-                    item_nodes = text_to_textnodes(item_text)
-                    list_nodes.append(ParentNode("li", children=item_nodes))
-                html_nodes.append(ParentNode("ul",list_nodes))
+            case "unordered_list" | "ordered_list":
 
-            case "ordered_list":
-                list_nodes = []
-                item_lists = block.split("\n")
-                for item in item_lists:
-                    item_text = item.lstrip("0123456789. ").strip()
-                    item_nodes = text_to_textnodes(item)
-                    list_nodes.append(ParentNode("li", children=item_nodes))
-                html_nodes.append(ParentNode("ol",list_nodes))
+                html_nodes.append(create_list_blocks(block,block_to_block_type(block)))
+
+
 
             case "paragraph":
-                paragraph_nodes = text_to_textnodes(block)
+                paragraph_nodes = text_to_children(block)
                 html_nodes.append(ParentNode("p",children=paragraph_nodes))
     
     return ParentNode("div",children=html_nodes)
@@ -242,16 +268,14 @@ def get_heading_type(text):
     return heading_type
 
 def text_to_children(text):
-    delimit_list =[("**",TextType.BOLD),("*",TextType.ITALIC),("`",TextType.CODE),]
-    new_nodes = [TextNode(text,TextType.TEXT)]
-    for delim, txttype in delimit_list:
-        new_nodes = split_nodes_delimiter(new_nodes,delim,txttype)
-
-    
-    new_nodes = split_nodes_image(new_nodes)
-    new_nodes = split_nodes_link(new_nodes)
+    new_nodes = []
+    text_nodes = text_to_textnodes(text)
+    for node in text_nodes:
+        new_nodes.append(text_node_to_html_node(node))
 
     return new_nodes
+
+
 
 def create_list_blocks(block,block_type):
     list_nodes = []
@@ -264,16 +288,49 @@ def create_list_blocks(block,block_type):
             item_child_nodes = text_to_children(item_text)
         
         # Create a <li> node with the inline child node
-            list_node = HTMLNode("li", children=item_child_nodes)
+            list_node = ParentNode("li", children=item_child_nodes)
             list_nodes.append(list_node)
 
 # Determine the parent list type and wrap the items
     if block_type == "unordered_list":
-        list_parent = HTMLNode("ul", children=list_nodes)
+        list_parent = ParentNode("ul", children=list_nodes)
     elif block_type == "ordered_list":
-       list_parent = HTMLNode("ol", children=list_nodes)
+       list_parent = ParentNode("ol", children=list_nodes)
 
 # Return the outer parent list node
     return list_parent
+
+def clean_lists(markdown):
+    blocks = markdown.split('\n\n')
+    result = []
+    for block in blocks:
+        lines_unprepped = block.split("\n")
+        lines_prepped = []
+        for line in lines_unprepped:
+            lines_prepped.append(line.strip())
+        cleaned_block = "\n".join(lines_prepped)
+             
+        if cleaned_block:
+            result.append(cleaned_block)
+        
+    return result
+
+
+def clean_code_block(block):
+    lines = block.split('\n')
+    print(lines)
+    # Remove first and last lines (which contain ```)
+    lines = lines[1:-1]
+    # Join the remaining lines back together
+    return "\n".join(lines)
+
+
+
+def clean_quote_block(block):
+    lines = block.split('\n')
+    cleaned_lines = []
+    for line in lines:
+        cleaned_lines.append(line.lstrip("> "))
+    return "\n".join(cleaned_lines)
 
 
