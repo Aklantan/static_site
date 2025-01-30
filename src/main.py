@@ -1,11 +1,13 @@
 from textnode import *
 from htmlnode import *
+from os_operations import copy_static
+
+source = "./static"
+dest = "./public"
 
 def main():
-    textnode = TextNode("Thisis a text node",TextType.BOLD,"https://www.boot.dev")
-    print(textnode.__repr__())
+    copy_static(source,dest)
 
-    node = LeafNode("p", "This is a paragraph of text.")
-    print(node.to_html())
+
 
 main()
