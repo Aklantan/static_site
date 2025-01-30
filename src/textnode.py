@@ -13,7 +13,7 @@ def text_node_to_html_node(text_node):
     if text_node.text_type == TextType.TEXT:
         return LeafNode(tag= None, value= text_node.text)
     if text_node.text_type == TextType.BOLD:
-        return LeafNode(tag="strong", value = text_node.text)
+        return LeafNode(tag="b", value = text_node.text)
     if text_node.text_type == TextType.ITALIC:
         return LeafNode(tag="i", value = text_node.text)
     if text_node.text_type == TextType.CODE:
