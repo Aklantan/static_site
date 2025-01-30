@@ -227,7 +227,6 @@ def block_to_block_type(block):
 
     return block_type
         
-############################## CURRENTLY WIP below this line. ##############################################
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
@@ -332,5 +331,16 @@ def clean_quote_block(block):
     for line in lines:
         cleaned_lines.append(line.lstrip("> "))
     return "\n".join(cleaned_lines)
+
+
+def extract_title(markdown):
+    lines = markdown.splitlines()
+    for line in lines:
+        if line.startswith("# "):
+            return line.split("# ",1)[1].strip()
+        
+    raise Exception ("No title in document")
+
+
 
 

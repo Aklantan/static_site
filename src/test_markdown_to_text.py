@@ -169,6 +169,20 @@ class TestMarkdowntoHTMLNode(unittest.TestCase):
         assert node.to_html() == expected_html
 
 
+class TestTitleExtract(unittest.TestCase):
+    def test_title_extract(self):
+        markdown = "# Hello"
+        self.assertEqual(extract_title(markdown),"Hello")
+        markdown = "Some text\n# Title\nMore text"
+        assert extract_title(markdown) == "Title"
+        markdown = "No title here"
+        with self.assertRaises(Exception) as context:
+            extract_title(markdown)
+        self.assertEqual(str(context.exception),"No title in document")
+
+
+
+
 
 if __name__ == "__main__":
     unittest.main()
