@@ -120,7 +120,8 @@ def validate_no_nested_parentheses(text):
 
 
 def text_to_textnodes(text):
-    delimit_list =[("**",TextType.BOLD),("*",TextType.ITALIC),("`",TextType.CODE),]
+    print(text)
+    delimit_list =[("**",TextType.BOLD),("*",TextType.ITALIC),("```",TextType.CODE),("`",TextType.CODE)]
     new_nodes = [TextNode(text,TextType.TEXT)]
     for delim, txttype in delimit_list:
         new_nodes = split_nodes_delimiter(new_nodes,delim,txttype)
@@ -281,7 +282,12 @@ def create_list_blocks(block,block_type):
     for line in block.splitlines():
         if line.strip():  # Only process non-blank lines
         # Remove list markers (e.g., "-", "*", or "1. ") and any extra spaces
-            item_text = line.lstrip("-*0123456789. ").strip()
+            if line.startswith("* "):
+                item_text = line[2:]  # Skip the "* " at the start
+            elif line.startswith("- "):
+                item_text = line[2:]  # Skip the "- " at the start 
+            else:
+                item_text = line.lstrip("0123456789. ").strip()
         
         # Convert the text into inline child nodes (e.g., for bold or italic)
             item_child_nodes = text_to_children(item_text)

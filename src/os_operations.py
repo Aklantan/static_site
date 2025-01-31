@@ -3,6 +3,7 @@ import shutil
 from markdown_totextnodes import *
 from htmlnode import *
 from textnode import *
+from pathlib import Path
 
 
 
@@ -49,4 +50,13 @@ def generate_page(from_path, template_path, dest_path):
 def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
    files = os.listdir(dir_path_content)
    for file in files:
+      full_path = os.path.join(dir_path_content, file)
+      dest_file = file.replace("md","html")
+      dest_path = os.path.join(dest_dir_path,dest_file)
       
+      if os.path.isdir(full_path):
+         Path(dest_path).mkdir(parents=True,exist_ok=True)
+         generate_pages_recursive(full_path,template_path, dest_path)
+      elif os.path.isfile(full_path) and file.endswith(".md"):
+         generate_page(full_path,template_path,dest_path)
+
